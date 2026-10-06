@@ -1,225 +1,205 @@
-Welcome to your new TanStack Start app!
+# User Data Grid
 
-# Getting Started
+A reusable React data grid built with TanStack Start, TanStack Router, TanStack
+Query, and TanStack Table. It loads user data from JSONPlaceholder and provides
+search, filtering, sorting, pagination, and row selection.
 
-To run this application:
+## Features
+
+- Fetches users from the JSONPlaceholder API
+- Runtime validation of API responses with Zod
+- Loading skeleton state
+- Error state with retry
+- Empty-data and empty-filter-result states
+- Debounced global search across:
+  - Name
+  - Username
+  - Email
+  - Phone
+  - Website
+- Column filters:
+  - Text filters for Name, Username, Email, and Website
+  - Select filters for Company and City
+- Sortable table columns
+- Client-side pagination
+- Page sizes of 10, 25, 50, and 100
+- Individual row selection
+- Select-all for the current page
+- Stable row selection based on each user's ID
+- Responsive table overflow behavior
+
+## Requirements
+
+- Node.js 18 or newer
+- pnpm
+
+If pnpm is not installed, install it using
+[Corepack](https://nodejs.org/api/corepack.html):
+
+```bash
+corepack enable
+corepack prepare pnpm@latest --activate
+```
+
+## Getting started
+
+Clone the repository and move into the project directory:
+
+```bash
+git clone <repository-url>
+cd interview-task
+```
+
+Install dependencies:
 
 ```bash
 pnpm install
+```
+
+Start the development server:
+
+```bash
 pnpm dev
 ```
 
-# Building For Production
+Open [http://localhost:3000](http://localhost:3000) in a browser.
 
-To build this application for production:
+The development server uses Vite and automatically reloads when source files
+change.
+
+## Available scripts
+
+| Command                | Description                                     |
+| ---------------------- | ----------------------------------------------- |
+| `pnpm dev`             | Start the local development server on port 3000 |
+| `pnpm build`           | Create a production build                       |
+| `pnpm preview`         | Preview the production build locally            |
+| `pnpm lint`            | Run ESLint                                      |
+| `pnpm check`           | Check formatting with Prettier                  |
+| `pnpm format`          | Format the project and apply ESLint fixes       |
+| `pnpm generate-routes` | Regenerate the TanStack Router route tree       |
+
+Run the main verification commands before submitting changes:
 
 ```bash
+pnpm exec tsc --noEmit
+pnpm lint
+pnpm check
 pnpm build
 ```
 
-## Styling
+## Data source
 
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
+Users are fetched from:
 
-### Removing Tailwind CSS
-
-If you prefer not to use Tailwind CSS:
-
-1. Remove the demo pages in `src/routes/demo/`
-2. Replace the Tailwind import in `src/styles.css` with your own styles
-3. Remove `tailwindcss()` from the plugins array in `vite.config.ts`
-4. Remove `@tailwindcss/vite` and `tailwindcss` from `package.json`
-
-## Linting & Formatting
-
-This project uses [eslint](https://eslint.org/) and [prettier](https://prettier.io/) for linting and formatting. Eslint is configured using [tanstack/eslint-config](https://tanstack.com/config/latest/docs/eslint). The following scripts are available:
-
-```bash
-pnpm lint
-pnpm format
-pnpm check
+```text
+https://jsonplaceholder.typicode.com/users
 ```
 
-## Deploy to Vercel
+The request is defined in
+[`src/entities/user/api/user-api.ts`](./src/entities/user/api/user-api.ts).
+The response is validated against the Zod schema in
+[`src/entities/user/model/schema.ts`](./src/entities/user/model/schema.ts).
 
-1. Push this repo to GitHub, GitLab, or Bitbucket
-2. In Vercel, choose **Add New > Project** and import the repo
-3. Keep the detected TanStack Start framework settings
-4. Add production values from `.env.example` under **Settings > Environment Variables**
-5. Deploy
+The shared API client is located at
+[`src/shared/api/client.ts`](./src/shared/api/client.ts), so request behavior
+can be centralized if authentication, headers, or a different API base URL is
+introduced later.
 
-Vercel runs the build script and deploys Nitro's output as Vercel Functions and
-static assets. The included `vercel.json` makes framework detection explicit.
+## Project structure
 
-Variables prefixed with `VITE_` are included in the browser bundle. Keep secrets
-unprefixed so they remain server-only.
-
-## Shadcn
-
-Add components using the latest version of [Shadcn](https://ui.shadcn.com/).
-
-```bash
-pnpm dlx shadcn@latest add button
+```text
+src/
+├── entities/
+│   └── user/
+│       ├── api/       # User API requests
+│       └── model/     # User types and runtime schemas
+├── features/
+│   └── user/
+│       ├── services/  # User-facing data hooks
+│       └── ui/        # User table and column definitions
+├── integrations/      # TanStack Query and development integrations
+├── pages/
+│   └── home/          # Page-level composition
+├── routes/            # TanStack Router route adapters
+└── shared/
+    ├── api/           # Shared HTTP client
+    ├── hooks/         # Reusable React hooks
+    ├── lib/           # Shared table configuration and utilities
+    └── ui/            # Reusable table, data-grid, skeleton, and UI primitives
 ```
 
-## Routing
+The application follows a Feature-Sliced-style separation:
 
-This project uses [TanStack Router](https://tanstack.com/router) with file-based routing. Routes are managed as files in `src/routes`.
+- **Entities** contain domain data, types, schemas, and API access.
+- **Features** contain user-facing behavior and feature-specific UI.
+- **Pages** compose features into route-level screens.
+- **Shared** contains reusable UI and infrastructure without user-domain logic.
+- **Routes** connect URLs to pages and should remain thin.
 
-The application follows [Feature-Sliced Design](https://feature-sliced.design/):
+## Using the reusable data table
 
-- `src/app` contains application-wide setup and providers.
-- `src/pages` contains route-level page compositions.
-- `src/widgets` contains independent, reusable page blocks.
-- `src/features` contains user-facing actions and behaviors, such as auth
-  forms.
-- `src/entities` contains business-domain models and UI.
-- `src/shared` contains reusable UI, utilities, and infrastructure with no business
-  domain knowledge.
-
-Route files in `src/routes` are framework adapters only: they map a URL to a
-page from `src/pages` and should not contain page implementation details.
-
-### Adding A Route
-
-To add a new route to your application just add a new file in the `./src/routes` directory.
-
-TanStack will automatically generate the content of the route file for you.
-
-Now that you have two routes you can use a `Link` component to navigate between them.
-
-### Adding Links
-
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
+The reusable table is implemented in
+[`src/shared/ui/data-table.tsx`](./src/shared/ui/data-table.tsx). It accepts
+generic row data, column definitions, labels, and an optional stable row ID
+function:
 
 ```tsx
-import { Link } from '@tanstack/react-router'
+<DataTable
+  columns={columns}
+  data={users}
+  entityLabel="users"
+  rowLabel="user"
+  searchLabel="Search users"
+  getRowId={(user) => String(user.id)}
+/>
 ```
 
-Then anywhere in your JSX you can use it like so:
+Column metadata controls filtering and global-search participation:
 
 ```tsx
-<Link to="/about">About</Link>
-```
-
-This will create a link that will navigate to the `/about` route.
-
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
-
-### Using A Layout
-
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you render `{children}` in the `shellComponent`.
-
-Here is an example layout that includes a header:
-
-```tsx
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
-
-export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      { charSet: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'My App' },
-    ],
-  }),
-  shellComponent: ({ children }) => (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        <header>
-          <nav>
-            <Link to="/">Home</Link>
-            <Link to="/about">About</Link>
-          </nav>
-        </header>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  ),
-})
-```
-
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
-
-## Server Functions
-
-TanStack Start provides server functions that allow you to write server-side code that seamlessly integrates with your client components.
-
-```tsx
-import { createServerFn } from '@tanstack/react-start'
-
-const getServerTime = createServerFn({
-  method: 'GET',
-}).handler(async () => {
-  return new Date().toISOString()
-})
-
-// Use in a component
-function MyComponent() {
-  const [time, setTime] = useState('')
-
-  useEffect(() => {
-    getServerTime().then(setTime)
-  }, [])
-
-  return <div>Server time: {time}</div>
+meta: {
+  filter: 'text',
+  globalFilter: true,
 }
 ```
 
-## API Routes
+## Production preview
 
-You can create API routes by using the `server` property in your route definitions:
+Build the application and preview the generated output:
 
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-import { json } from '@tanstack/react-start'
-
-export const Route = createFileRoute('/api/hello')({
-  server: {
-    handlers: {
-      GET: () => json({ message: 'Hello, World!' }),
-    },
-  },
-})
+```bash
+pnpm build
+pnpm preview
 ```
 
-## Data Fetching
+The preview command prints the local URL for the production build.
 
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
+## Troubleshooting
 
-For example:
+### Port 3000 is already in use
 
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
+Stop the process using port 3000, or run Vite with another port:
 
-export const Route = createFileRoute('/people')({
-  loader: async () => {
-    const response = await fetch('https://swapi.dev/api/people')
-    return response.json()
-  },
-  component: PeopleComponent,
-})
-
-function PeopleComponent() {
-  const data = Route.useLoaderData()
-  return (
-    <ul>
-      {data.results.map((person) => (
-        <li key={person.name}>{person.name}</li>
-      ))}
-    </ul>
-  )
-}
+```bash
+pnpm exec vite dev --port 3001
 ```
 
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
+### API data does not load
 
-# Learn More
+Check that the development server can reach
+`jsonplaceholder.typicode.com`. The application displays an error state with a
+**Try again** button when the request fails.
 
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
+### Dependencies are out of date
 
-For TanStack Start specific documentation, visit [TanStack Start](https://tanstack.com/start).
+Reinstall from the lockfile:
+
+```bash
+pnpm install --frozen-lockfile
+```
+
+## License
+
+This project is an interview-task application and does not currently define a
+separate license.
