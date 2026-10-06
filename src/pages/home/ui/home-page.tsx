@@ -1,10 +1,9 @@
+import UsersTable from '#/features/user/ui/users-table'
+
 export function HomePage() {
   return (
     <div className="p-8">
-      <h1 className="text-4xl font-bold">Welcome to TanStack Start</h1>
-      <p className="mt-4 text-lg">
-        Edit <code>src/pages/home/ui/home-page.tsx</code> to get started.
-      </p>
+      <UsersTable />
     </div>
   )
 }
